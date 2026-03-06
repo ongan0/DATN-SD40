@@ -26,8 +26,6 @@ import bannerReducer from "./banner/bannerSlice";
 import voucherReducer from "./Voucher/voucherSlice"; 
 import shiftHandoverReducer from "./shiftHandover/shiftHandoverSlice";
 import shiftTemplateReducer from "./shiftTemplate/ShiftTemplateSlice";
-import chatReducer from "./chat/chatSlice";
-
 
 
 export const store = configureStore({

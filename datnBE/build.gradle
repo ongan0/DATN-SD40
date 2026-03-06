@@ -6,6 +6,9 @@ plugins {
 
 group = 'com.example'
 version = '0.0.1-SNAPSHOT'
+ext {
+    set('springAiVersion', "1.0.0-M4") // Sử dụng bản Milestone 4
+}
 description = 'datn'
 
 java {
@@ -16,43 +19,59 @@ java {
 
 repositories {
     mavenCentral()
+
+    maven { url 'https://repo.spring.io/milestone' }
+
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.ai:spring-ai-bom:${springAiVersion}"
+    }
 }
 
 dependencies {
+
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
     implementation 'io.github.cdimascio:dotenv-java:3.0.0'
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 
     // Database
     runtimeOnly 'com.mysql:mysql-connector-j'
 
-    // Spring Boot starters
+    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-mail'
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
     implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
-    implementation 'org.apache.poi:poi-ooxml:5.2.3'
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
 
-    // Other libs
-    implementation 'com.cloudinary:cloudinary-http44:1.29.0'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+
+    // Spring AI
+    implementation 'org.springframework.ai:spring-ai-openai-spring-boot-starter'    // Excel
     implementation 'org.apache.poi:poi-ooxml:5.2.5'
 
-    //jwt
+    // Cloudinary
+    implementation 'com.cloudinary:cloudinary-http44:1.29.0'
+
+    // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    // Swagger
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'
 
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
 
-    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0'}
 tasks.named('test') {
     useJUnitPlatform()
 }
