@@ -61,10 +61,11 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
+                // Set authentication TRƯỚC để đảm bảo dù globalVariables lỗi, user vẫn authenticated
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
                 globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_USER_ID, userId);
                 globalVariables.setGlobalVariable(GlobalVariablesConstant.CURRENT_ROLE_CODE, rolesCode);
-
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
             }
 

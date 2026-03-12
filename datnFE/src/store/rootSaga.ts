@@ -1,4 +1,5 @@
 import { all, fork } from "redux-saga/effects";
+import watchAuthFlow from "../redux/auth/authSaga";
 import watchCustomerFlow from "../redux/customer/customerSaga";
 import watchEmployeeFlow from "../redux/employee/employeeSaga";
 import statisticsSaga from "../redux/statistics/statisticsSaga";
@@ -24,6 +25,7 @@ import watchStorageFlow from "../redux/storage/storageSaga";
 
 export default function* rootSaga() {
   yield all([
+    fork(watchAuthFlow),
     fork(watchCustomerFlow),
     fork(watchEmployeeFlow),
     fork(watchSerialFlow),

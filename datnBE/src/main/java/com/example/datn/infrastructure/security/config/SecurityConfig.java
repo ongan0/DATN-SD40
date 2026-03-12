@@ -26,6 +26,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -99,12 +100,31 @@ public class SecurityConfig {
                         e.authenticationEntryPoint(new RestAuthenticationEntryPoint())
                 )
                 .authorizeHttpRequests(auth -> auth
+                        // Upload & static files
                         .requestMatchers("/api/upload/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
-                        .requestMatchers("/**").permitAll()
+                        // Auth endpoints (login, register, forgot-password, verify-otp, refresh)
+                        .requestMatchers(MappingConstants.API_AUTH_PREFIX + "/**").permitAll()
+                        // Public product/client endpoints
+                        .requestMatchers(MappingConstants.API_COMMON + "/**").permitAll()
+                        .requestMatchers("/api/v1/product-image/**").permitAll()
                         .requestMatchers("/api/v1/admin/product-image/**").permitAll()
-                        .requestMatchers(MappingConstants.API_LOGIN).permitAll()
-                        .anyRequest().permitAll() // test
+                        // OAuth2 endpoints
+                        .requestMatchers("/oauth2/**").permitAll()
+                        // Public READ-ONLY: catalog data accessible by everyone (CUSTOMER, guest)
+                        .requestMatchers(HttpMethod.GET, MappingConstants.API_ADMIN_PREFIX + "/product-category/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, MappingConstants.API_ADMIN_PREFIX + "/product/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, MappingConstants.API_ADMIN_PREFIX + "/tech-spec/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, MappingConstants.API_ADMIN_PREFIX + "/banner/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, MappingConstants.API_ADMIN_PREFIX + "/products/**").permitAll()
+                        // Admin endpoints — chỉ ADMIN và STAFF
+                        .requestMatchers(MappingConstants.API_ADMIN_PREFIX + "/**")
+                            .hasAnyAuthority(RoleConstant.ADMIN.name(), RoleConstant.STAFF.name())
+                        // Customer endpoints — chỉ CUSTOMER
+                        .requestMatchers(MappingConstants.API_VERSION_PREFIX + "/customer/**")
+                            .hasAuthority(RoleConstant.CUSTOMER.name())
+                        // Tất cả request còn lại phải authenticated
+                        .anyRequest().authenticated()
                 );
 
         http.addFilterBefore(
@@ -113,42 +133,5 @@ public class SecurityConfig {
         );
 
         return http.build();
-
-
-
-//        http.csrf(AbstractHttpConfigurer::disable);
-//        http.cors(c -> c.configurationSource(corsConfigurationSource()));
-//        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-//        http.formLogin(AbstractHttpConfigurer::disable);
-//        http.httpBasic(AbstractHttpConfigurer::disable);
-//        http.exceptionHandling(e -> e.authenticationEntryPoint(new RestAuthenticationEntryPoint()));
-//
-//        http.authorizeHttpRequests(
-//                authorizeRequests -> authorizeRequests.requestMatchers(MappingConstants.API_LOGIN).permitAll()
-//        );
-//
-//        http.authorizeHttpRequests(
-//                authorizeRequests -> authorizeRequests.requestMatchers(Helper.appendWildcard(MappingConstants.API_AUTH_PREFIX)).hasAnyAuthority(RoleConstant.ADMIN.name())
-//        );
-//
-//        http.oauth2Login(
-//                oauth2 -> oauth2.authorizationEndpoint(a -> a.baseUri("/oauth2/authorize"))
-//                        .redirectionEndpoint(r -> r.baseUri("/oauth2/callback/**"))
-//                        .userInfoEndpoint(u -> u.userService(customOAuth2UserService))
-//                        .authorizationEndpoint(a -> a.authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
-//                        .successHandler(oAuth2AuthenticationSuccessHandler)
-//                        .failureHandler(oAuth2AuthenticationFailureHandler)
-//        );
-//
-//        http.addFilterBefore(tokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
-
-//        http.authorizeHttpRequests(auth -> auth
-//                .requestMatchers("/api/upload/**").permitAll()  // Upload endpoint
-//                .requestMatchers("/uploads/**").permitAll()     // Static files
-//                .requestMatchers(MappingConstants
-//                        .API_LOGIN).permitAll()
-//                .anyRequest().permitAll() // Tạm thời cho phép tất cả để test
-//        );
-//        return http.build();
     }
 }

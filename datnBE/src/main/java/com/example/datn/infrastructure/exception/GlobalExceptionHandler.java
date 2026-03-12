@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
-public class GlobalExceptionHandler extends RuntimeException {
+public class GlobalExceptionHandler {
     @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
     public ResponseEntity<ResponseObject<?>> handleValidation(Exception ex) {
         String message;
@@ -62,6 +62,13 @@ public class GlobalExceptionHandler extends RuntimeException {
     public ResponseEntity<ResponseObject<?>> handleDuplicateResource(DuplicateResourceException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
                 ResponseObject.error(HttpStatus.CONFLICT, ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(ServiceException.class)
+    public ResponseEntity<ResponseObject<?>> handleService(ServiceException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                ResponseObject.error(HttpStatus.BAD_REQUEST, ex.getMessage())
         );
     }
 
